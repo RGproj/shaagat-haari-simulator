@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>🦁 סימולטור שאגת הארי</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;background:#eef2f7;color:#1e293b;min-height:100vh;direction:rtl}
+input,select{font-family:'Heebo',sans-serif}
+input:focus,select:focus{outline:none;border-color:#c9973a!important;box-shadow:0 0 0 3px rgba(201,151,58,.15)}
+#header{background:#0f2744;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:3px solid #c9973a;position:sticky;top:0;z-index:100}
+#header h1{font-size:17px;font-weight:800;color:#fff;line-height:1.2}
+#header p{font-size:10px;color:#f0c060;margin-top:1px}
+.hbtns{display:flex;gap:8px}
+.btn{padding:6px 14px;border-radius:7px;border:none;cursor:pointer;font-family:'Heebo',sans-serif;font-size:12px;font-weight:700;transition:all .15s}
+.btn-gold{background:#c9973a;color:#fff}.btn-gold:hover{background:#e6aa42}
+.btn-purple{background:#7c3aed;color:#fff}.btn-purple:hover{background:#6d28d9}
+.btn-outline{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.25)}
+.btn-green{background:#1a6b37;color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+#disc{background:#fef3c7;border-bottom:1px solid #f59e0b;padding:7px 20px;font-size:11px;color:#92400e;line-height:1.5}
+#tabs{background:#1a3a5c;padding:0 20px;display:flex;align-items:flex-end;gap:3px;overflow-x:auto;flex-shrink:0}
+.tab{padding:9px 14px 8px;border-radius:8px 8px 0 0;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Heebo',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:7px;background:transparent;color:rgba(255,255,255,.5);transition:all .15s}
+.tab.active{background:#eef2f7;color:#0f2744}
+.tab-badge{font-size:10px;background:#c9973a;color:#fff;padding:2px 6px;border-radius:10px}
+.tab-x{opacity:.4;font-size:13px;cursor:pointer;margin-right:2px}.tab-x:hover{opacity:1;color:#b91c1c}
+.tab-add{color:#f0c060!important;font-weight:600;background:transparent!important;border:none;cursor:pointer;font-family:'Heebo',sans-serif;font-size:12px;padding:9px 14px 8px}
+#body{padding:16px 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.panel{background:#fff;border-radius:10px;border:1px solid #dde3ed;box-shadow:0 2px 16px rgba(15,39,68,.08);overflow:hidden}
+.panel-title{background:#0f2744;color:#fff;padding:11px 16px;font-size:13px;font-weight:700}
+.sec{font-size:10px;font-weight:800;color:#1a3a5c;text-transform:uppercase;letter-spacing:.6px;padding:10px 16px 3px;background:#f1f5f9;border-top:1px solid #dde3ed;border-bottom:1px solid #dde3ed;margin-top:4px}
+.fw{padding:7px 16px 3px;display:inline-block;vertical-align:top;width:100%}
+.fw.half{width:50%}
+.fw label{display:block;font-size:11px;font-weight:700;color:#1e293b;margin-bottom:3px}
+.fw .hint{font-size:10px;color:#94a3b8;margin-top:3px;line-height:1.4}
+.iw{position:relative;display:flex;align-items:center}
+.iw input,.iw select{width:100%;padding:7px 10px;border:1.5px solid #dde3ed;border-radius:7px;font-size:13px;font-family:'Heebo',sans-serif;background:#e8f3ff;color:#0050c0;outline:none;-webkit-appearance:none;appearance:none}
+.iw select{cursor:pointer}
+.iw .sfx{position:absolute;left:9px;color:#94a3b8;font-size:12px;pointer-events:none}
+.rr{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 16px;border-bottom:1px solid #f1f5f9;gap:8px}
+.rr.hi{background:#edfaf3}.rr.warn{background:#fef2f2}
+.rr .rl{display:flex;flex-direction:column;gap:2px;flex:1}
+.rr .rl .lbl{font-size:12px;color:#1e293b}
+.rr .rl .ref{font-size:10px;color:#94a3b8}
+.rr .rl .fml{font-size:10px;color:#94a3b8;font-style:italic}
+.rr .rv{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.rr .rv .val{font-size:13px;font-weight:800;color:#0f2744}
+.rr .rv .sub{font-size:10px;color:#94a3b8}
+.rr.hi .val{color:#1a6b37}.rr.warn .val{color:#b91c1c}
+.divl{height:2px;background:linear-gradient(90deg,#0f2744,#1a3a5c);margin:8px 0}
+.final-box{margin:12px 16px;padding:18px 20px;background:#0f2744;border-radius:10px;text-align:center;position:relative;overflow:hidden}
+.final-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,151,58,.18),transparent 70%);pointer-events:none}
+.final-lbl{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px;font-weight:600}
+.final-val{font-size:32px;font-weight:900;color:#f0c060}
+.final-note{font-size:11px;color:#f87171;margin-top:6px}
+.final-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px}
+.small-disc{font-size:10px;color:#94a3b8;padding:8px 16px 14px;line-height:1.6;border-top:1px solid #f1f5f9}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;color:#94a3b8;text-align:center;min-height:300px}
+.empty .icon{font-size:48px;margin-bottom:16px}
+.empty h3{font-size:16px;font-weight:700;color:#1a3a5c;margin-bottom:8px}
+.empty p{font-size:13px;line-height:1.7;max-width:260px}
+#compare-view{padding:20px;display:none}
+#compare-view h2{font-size:17px;font-weight:800;color:#0f2744;margin-bottom:14px}
+.cmp-tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(15,39,68,.10)}
+.cmp-tbl th{background:#0f2744;color:#fff;padding:11px 14px;text-align:right;font-size:12px;font-weight:700}
+.cmp-tbl td{padding:9px 14px;font-size:12px;border-bottom:1px solid #dde3ed;text-align:right}
+.cmp-tbl .lc{font-weight:700;color:#1a3a5c;background:#f1f5f9;font-size:11px}
+.cmp-tbl .sc td{background:#1a3a5c;color:rgba(255,255,255,.75);font-weight:700;font-size:11px;padding:6px 14px}
+.cmp-tbl .fr td{background:#fef8ec;font-weight:900;font-size:15px;color:#0f2744}
+@media print{
+  #header,#disc,#tabs,#body,#compare-view{display:none!important}
+  #print-area{display:block!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#print-area{display:none;padding:20px;font-family:'Heebo',sans-serif;direction:rtl}
+.ps-head{display:flex;justify-content:space-between;border-bottom:3px solid #0f2744;padding-bottom:10px;margin-bottom:14px}
+.ps-disc{background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.7;margin-bottom:16px}
+.ps-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.ps-tbl th{background:#0f2744;color:#fff;padding:8px 10px;text-align:right;font-weight:700}
+.ps-tbl td{padding:6px 10px;border-bottom:1px solid #dde3ed;text-align:right}
+.ps-tbl .ps-sec td{background:#1a3a5c;color:rgba(255,255,255,.8);font-weight:700;padding:5px 10px}
+.ps-tbl .ps-fin td{background:#fef8ec;font-weight:900;font-size:14px}
+.ps-foot{margin-top:14px;font-size:10px;color:#94a3b8;border-top:1px solid #dde3ed;padding-top:8px;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <h1>🦁 סימולטור שאגת הארי</h1>
+    <p>מבוסס על טיוטת מסמך לשכת יועצי המס | טרם אושר ונחקק</p>
+  </div>
+  <div class="hbtns">
+    <button class="btn btn-outline" id="btnCompare" onclick="toggleCompare()" style="display:none">⚖️ השווה</button>
+    <button class="btn btn-purple" id="btnPrint" onclick="doPrint()" disabled>🖨️ הדפס / PDF</button>
+    <button class="btn btn-gold" id="btnSave" onclick="doSave()">💾 שמור</button>
+  </div>
+</div>
+
+<div id="disc">
+  ⚠️ <strong>דיסקליימר:</strong> סימולציה בלבד המבוססת על <strong>טיוטת</strong> מתווה "שאגת הארי" של לשכת יועצי המס.
+  המתווה <strong>טרם אושר ונחקק</strong> ועשוי להשתנות. אין ייעוץ מקצועי. יש לאמת עם יועץ מס מוסמך.
+</div>
+
+<div id="tabs">
+  <button class="tab-add" onclick="addClient()">＋ לקוח חדש</button>
+</div>
+
+<div id="body">
+  <div class="grid2" id="edit-view">
+    <div class="panel">
+      <div class="panel-title">📋 נתוני קלט</div>
+      <div class="sec">א. פרטי העסק</div>
+      <div class="fw"><label>שם העסק / לקוח</label><div class="iw"><input id="f-name" type="text" placeholder="לדוגמה: חברה א׳"/></div></div>
+      <div style="display:flex">
+        <div class="fw half"><label>סוג ישות</label><div class="iw"><select id="f-entity"><option>עוסק מורשה</option><option>עוסק פטור</option><option>עמותה / מלכ"ר</option><option>קבלן ביצוע</option></select></div></div>
+        <div class="fw half"><label>דיווח מע"מ</label><div class="iw"><select id="f-reportType"><option>חד חודשי</option><option>דו חודשי</option></select></div></div>
+      </div>
+      <div class="sec">ב. מחזורים</div>
+      <div class="fw"><label>מחזור שנתי 2025 (₪)</label><div class="iw"><input id="f-annual" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div><div class="hint">עמוד 2 — מחזור עסקאות שנת 2025 לעסק שנפתח עד 31.12.24</div></div>
+      <div class="fw"><label>מחזור זכאות 03/2026 (₪)</label><div class="iw"><input id="f-elig" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div><div class="hint">עמוד 10 — חד חודשי: מחזור חודש 03/2026 | דו: 03-04/2026</div></div>
+      <div class="fw"><label>מחזור בסיס — ממוצע חודשי 03/25–02/26 (₪)</label><div class="iw"><input id="f-baseTurnover" type="number" min="0" placeholder="אם לא ידוע — הכנס ממוצע 2025 ÷ 12"/><span class="sfx">₪</span></div><div class="hint">עמוד 10 — ממוצע מחזור העסקאות בתקופה 03/2025–02/2026</div></div>
+      <div class="sec">ג. הוצאות / תשומות</div>
+      <div class="fw"><label>הוצאות/תשומות שנתי 2025 (₪)</label><div class="iw"><input id="f-annualExp" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div><div class="hint">עמוד 6 — סה"כ שנתי, מחולק ב-12 אוטומטית</div></div>
+      <div class="sec">ד. שכר עובדים</div>
+      <div class="fw"><label>שכר טופס 102 — 03/2026 (₪)</label><div class="iw"><input id="f-sal102" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div><div class="hint">עמוד 5 — שכר ברוטו שדווח</div></div>
+      <div class="fw"><label>מספר עובדים — 03/2026</label><div class="iw"><input id="f-numEmp" type="number" min="0" placeholder="0"/></div><div class="hint">לחישוב תקרת מענק שכר</div></div>
+      <div style="display:flex">
+        <div class="fw half"><label>מילואים מב"ל (₪)</label><div class="iw"><input id="f-miluum" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div></div>
+        <div class="fw half"><label>שכר חל"ת / חופשה (₪)</label><div class="iw"><input id="f-chalat" type="number" min="0" placeholder="0"/><span class="sfx">₪</span></div></div>
+      </div>
+      <div class="sec">ה. מסלולים מיוחדים</div>
+      <div style="display:flex">
+        <div class="fw half"><label>קבלן ביצוע (×0.68)?</label><div class="iw"><select id="f-isKaplan"><option value="false">לא</option><option value="true">כן</option></select></div></div>
+        <div class="fw half"><label>הגדלת מקדם ×1.5?</label><div class="iw"><select id="f-factorBoost"><option value="false">לא</option><option value="true">כן</option></select></div></div>
+      </div>
+      <div style="height:12px"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">🧮 תוצאות חישוב</div>
+      <div id="results-area">
+        <div class="empty"><div class="icon">🦁</div><h3>מלא את הנתונים לראות תוצאות</h3><p>הזן לפחות מחזור שנתי 2025 ומחזור זכאות — התוצאות יעודכנו אוטומטית.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="compare-view">
+  <h2>⚖️ השוואה בין לקוחות</h2>
+  <div id="cmp-wrap"></div>
+  <div style="margin-top:10px;font-size:11px;color:#94a3b8">⚠️ סימולציה בלבד | מתווה טרם אושר ונחקק | אין ייעוץ מקצועי</div>
+</div>
+
+<div id="print-area"></div>
+
+<script>
+const SK = 'shaagat_v5';
+
+let clients = [], activeIdx = 0, compareMode = false;
+
+function emptyClient() {
+  return { name:'', entity:'עוסק מורשה', reportType:'חד חודשי',
+           annual:'', elig:'', baseTurnover:'', annualExp:'', sal102:'', numEmp:'',
+           miluum:'', chalat:'', isKaplan:false, factorBoost:false };
+}
+
+function loadData() {
+  try { const s = localStorage.getItem(SK); if (s) clients = JSON.parse(s); } catch {}
+  if (!clients.length) clients = [emptyClient()];
+}
+
+function saveData() {
+  try { localStorage.setItem(SK, JSON.stringify(clients)); } catch {}
+}
+
+// ── Calc ───────────────────────────────────────────────────────
+function calc(d) {
+  const annual    = +d.annual    || 0;
+  const annualExp = +d.annualExp || 0;
+  const elig      = +d.elig      || 0;
+  const sal102    = +d.sal102    || 0;
+  const numEmp    = +d.numEmp    || 0;
+  const miluum    = +d.miluum    || 0;
+  const chalat    = +d.chalat    || 0;
+  const isAssoc   = d.entity === 'עמותה / מלכ"ר';
+  const isDuo     = d.reportType === 'דו חודשי';
+
+  const avg2025 = annual > 0 ? annual / 12 : 0;
+  const avgExp  = annualExp > 0 ? annualExp / 12 : 0;
+  const baseTurnover = +d.baseTurnover || 0;
+  const base = baseTurnover > 0 ? baseTurnover : avg2025;
+  const drop    = base > 0 ? Math.min((base - elig) / base, 1) : 0;
+  const minDrop = isDuo ? 0.125 : 0.25;
+  const passes  = drop >= minDrop && annual > 0;
+
+  let fb = 0;
+  if (isDuo) {
+    if      (drop >= 0.40) fb = 0.22;
+    else if (drop >= 0.30) fb = 0.15;
+    else if (drop >= 0.20) fb = 0.11;
+    else if (drop >= 0.125) fb = 0.07;
+  } else {
+    if      (drop >= 0.80) fb = 0.22;
+    else if (drop >= 0.60) fb = 0.15;
+    else if (drop >= 0.40) fb = 0.11;
+    else if (drop >= 0.25) fb = 0.07;
+  }
+  let f = fb;
+  if (d.isKaplan)     f *= 0.68;
+  if (d.factorBoost)  f *= 1.5;
+
+  const fixedGrant = avgExp * f;
+  const empMult    = isAssoc ? 1.325 : 1.25;
+  const netSal     = Math.max(0, sal102 - miluum - chalat);
+  const salBefore  = netSal * empMult * 0.75 * drop;
+  const salCap     = numEmp > 0 ? 13773 * empMult * numEmp * drop : Infinity;
+  const salGrant   = Math.min(salBefore, isFinite(salCap) ? salCap : salBefore);
+  const total      = fixedGrant + salGrant;
+
+  let cap = 0;
+  if (annual > 0) {
+    if      (annual <= 100000000) cap = 600000;
+    else if (annual <= 300000000) cap = 600000 + 0.003 * (annual - 100000000);
+    else                          cap = 1200000;
+  }
+
+  const finalGrant = passes ? Math.min(total, cap) : 0;
+  return { avg2025, avgExp, base, drop, minDrop, passes, f, fb,
+           fixedGrant, empMult, netSal, salBefore, salCap, salGrant,
+           total, cap, finalGrant, hasData: annual > 0 };
+}
+
+// ── Format ─────────────────────────────────────────────────────
+function il(n)  { return (!isFinite(n)||isNaN(n)||n===0) ? '—' : '₪\u202F'+Math.round(n).toLocaleString('he-IL'); }
+function ilv(n) { return (!isFinite(n)||isNaN(n))        ? '—' : '₪\u202F'+Math.round(n).toLocaleString('he-IL'); }
+function pct(n) { return (!n||isNaN(n))                  ? '—' : (n*100).toFixed(1)+'%'; }
+
+function rr(label, val, opts) {
+  opts = opts||{};
+  return '<div class="rr'+(opts.hi?' hi':'')+(opts.warn?' warn':'')+'">'+
+    '<div class="rl"><span class="lbl">'+label+'</span>'+
+    (opts.ref  ? '<span class="ref">'+opts.ref+'</span>'  : '')+
+    (opts.formula ? '<span class="fml">'+opts.formula+'</span>' : '')+
+    '</div><div class="rv"><span class="val">'+val+'</span>'+
+    (opts.sub ? '<span class="sub">'+opts.sub+'</span>' : '')+
+    '</div></div>';
+}
+
+// ── Render Results ─────────────────────────────────────────────
+function renderResults() {
+  var c = clients[activeIdx], r = calc(c);
+  document.getElementById('btnPrint').disabled = !r.hasData;
+  var el = document.getElementById('results-area');
+  if (!r.hasData) {
+    el.innerHTML = '<div class="empty"><div class="icon">🦁</div><h3>מלא את הנתונים לראות תוצאות</h3><p>הזן לפחות מחזור שנתי 2025 ומחזור זכאות — התוצאות יעודכנו אוטומטית.</p></div>';
+    return;
+  }
+  var dr = r.drop>=.8?'80%–100% → 22%':r.drop>=.6?'60%–80% → 15%':r.drop>=.4?'40%–60% → 11%':'25%–40% → 7%';
+  var html = '';
+  html += '<div class="sec">ירידת מחזורים</div>';
+  html += rr('מחזור בסיס (03/25–02/26)', ilv(r.base), {ref:'עמוד 10', formula: r.base===r.avg2025 ? '⚠️ הוזן ממוצע 2025 — מומלץ להזין נתון אמיתי' : ''});
+  
+  html += rr('מחזור זכאות 03/2026', ilv(+c.elig), {ref:'עמוד 10'});
+  html += rr('שיעור ירידה', pct(r.drop), {hi:true, formula:'('+ilv(r.base)+' − '+ilv(+c.elig)+') ÷ '+ilv(r.base)});
+  html += rr(r.passes?'✅ עובר סף ירידה':'❌ לא עובר סף — לא זכאי', 'סף: '+pct(r.minDrop), {hi:r.passes, warn:!r.passes});
+  html += '<div class="sec">מקדם פיצוי</div>';
+  html += rr('מקדם בסיסי', pct(r.fb), {ref:'עמוד 4', formula:pct(r.drop)+' → '+dr});
+  if (c.isKaplan)    html += rr('קבלן ביצוע','×0.68');
+  if (c.factorBoost) html += rr('הגדלת מקדם','×1.5',{ref:'עמוד 7'});
+  html += rr('מקדם סופי', pct(r.f), {hi:true});
+  html += '<div class="sec">מענק הוצאות קבועות</div>';
+  html += rr('ממוצע הוצאות חודשי', ilv(r.avgExp), {formula:'הוצאות שנתי ÷ 12'});
+  html += rr('מענק הוצאות קבועות', ilv(r.fixedGrant), {hi:true, ref:'עמוד 4', formula:ilv(r.avgExp)+' × '+pct(r.f)});
+  html += '<div class="sec">מענק שכר</div>';
+  html += rr('שכר נטו לאחר ניכויים', ilv(r.netSal), {formula:'102 − מילואים − חל"ת'});
+  html += rr('מענק שכר לפני תקרה', ilv(r.salBefore), {ref:'עמוד 5', formula:ilv(r.netSal)+' × '+r.empMult+' × 0.75 × '+pct(r.drop)});
+  if (isFinite(r.salCap)) html += rr('תקרת שכר (עובדים)', ilv(r.salCap), {formula:'13,773 × '+r.empMult+' × '+c.numEmp+' × '+pct(r.drop)});
+  html += rr('מענק שכר (אחרי תקרה)', ilv(r.salGrant), {hi:true});
+  html += '<div class="divl"></div>';
+  html += rr('סה"כ לפני תקרה', ilv(r.total), {hi:true});
+  html += rr('תקרה כללית', ilv(r.cap), {ref:'עמוד 7', sub:+c.annual>1e8?'ליניארית: 600K + 0.003 × עודף מעל 100M':'קבועה: מחזור עד 100M'});
+  html += '<div class="final-box">';
+  html += '<div class="final-lbl">🏆 מענק סופי משוער</div>';
+  html += '<div class="final-val">'+ilv(r.finalGrant)+'</div>';
+  if (r.total > r.cap) html += '<div class="final-note">הפסד בתקרה: '+ilv(r.total-r.cap)+'</div>';
+  html += '<div class="final-sub">MIN('+ilv(r.total)+', '+ilv(r.cap)+')</div></div>';
+  html += '<div class="small-disc">⚠️ <strong>דיסקליימר:</strong> סימולציה בלבד. מתווה טרם אושר ונחקק. אין ייעוץ מקצועי.</div>';
+  el.innerHTML = html;
+}
+
+// ── Render Tabs ────────────────────────────────────────────────
+function renderTabs() {
+  var tabs = document.getElementById('tabs');
+  var addBtn = tabs.querySelector('.tab-add');
+  tabs.querySelectorAll('.tab').forEach(function(t){t.remove()});
+  clients.forEach(function(c, i) {
+    var r = calc(c);
+    var t = document.createElement('button');
+    t.className = 'tab' + (i===activeIdx ? ' active' : '');
+    var badge = (r.hasData && r.finalGrant>0) ? '<span class="tab-badge">'+il(r.finalGrant)+'</span>' : '';
+    t.innerHTML = (c.name||'לקוח '+(i+1)) + badge + '<span class="tab-x">✕</span>';
+    t.onclick = function(){ activeIdx=i; compareMode=false; renderAll(); };
+    t.querySelector('.tab-x').onclick = function(e){ e.stopPropagation(); removeClient(i); };
+    tabs.insertBefore(t, addBtn);
+  });
+  document.getElementById('btnCompare').style.display = clients.length>1 ? '' : 'none';
+}
+
+// ── Render Fields ──────────────────────────────────────────────
+function renderFields() {
+  var c = clients[activeIdx];
+  document.getElementById('f-name').value       = c.name||'';
+  document.getElementById('f-entity').value     = c.entity;
+  document.getElementById('f-reportType').value = c.reportType;
+  document.getElementById('f-annual').value     = c.annual||'';
+  document.getElementById('f-elig').value       = c.elig||'';
+  document.getElementById('f-baseTurnover').value = c.baseTurnover||'';
+  document.getElementById('f-annualExp').value  = c.annualExp||'';
+  document.getElementById('f-sal102').value     = c.sal102||'';
+  document.getElementById('f-numEmp').value     = c.numEmp||'';
+  document.getElementById('f-miluum').value     = c.miluum||'';
+  document.getElementById('f-chalat').value     = c.chalat||'';
+  document.getElementById('f-isKaplan').value   = c.isKaplan ? 'true' : 'false';
+  document.getElementById('f-factorBoost').value= c.factorBoost ? 'true' : 'false';
+}
+
+// ── Render All ─────────────────────────────────────────────────
+function renderAll() {
+  saveData();
+  renderTabs();
+  renderFields();
+  if (compareMode) {
+    document.getElementById('edit-view').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'block';
+    renderCompare();
+    document.getElementById('btnCompare').textContent = '↩ עריכה';
+  } else {
+    document.getElementById('edit-view').style.display = '';
+    document.getElementById('compare-view').style.display = 'none';
+    renderResults();
+    document.getElementById('btnCompare').textContent = '⚖️ השווה';
+  }
+}
+
+// ── Field Change ───────────────────────────────────────────────
+function bindFields() {
+  var fields = ['name','entity','reportType','annual','elig','baseTurnover','annualExp','sal102','numEmp','miluum','chalat'];
+  fields.forEach(function(f) {
+    var el = document.getElementById('f-'+f);
+    el.addEventListener('input',  function(){ clients[activeIdx][f]=this.value; saveData(); renderTabs(); renderResults(); });
+    el.addEventListener('change', function(){ clients[activeIdx][f]=this.value; saveData(); renderTabs(); renderResults(); });
+  });
+  ['isKaplan','factorBoost'].forEach(function(f){
+    var el = document.getElementById('f-'+f);
+    el.addEventListener('change', function(){ clients[activeIdx][f]=(this.value==='true'); saveData(); renderTabs(); renderResults(); });
+  });
+}
+
+// ── Actions ────────────────────────────────────────────────────
+function addClient() {
+  clients.push(emptyClient());
+  activeIdx = clients.length-1;
+  compareMode = false;
+  renderAll();
+}
+
+function removeClient(idx) {
+  if (clients.length===1) { clients=[emptyClient()]; activeIdx=0; renderAll(); return; }
+  clients.splice(idx,1);
+  activeIdx = Math.max(0, idx-1);
+  renderAll();
+}
+
+function toggleCompare() {
+  compareMode = !compareMode;
+  renderAll();
+}
+
+function doSave() {
+  saveData();
+  var btn = document.getElementById('btnSave');
+  btn.textContent='✓ נשמר'; btn.className='btn btn-green';
+  setTimeout(function(){ btn.textContent='💾 שמור'; btn.className='btn btn-gold'; }, 2000);
+}
+
+// ── Compare ────────────────────────────────────────────────────
+function renderCompare() {
+  var rows = [
+    {sec:'מחזורים'},
+    {l:'מחזור שנתי 2025',       f:function(i){return ilv(+clients[i].annual)}},
+    {l:'ממוצע הוצאות חודשי',    f:function(i){return ilv(calc(clients[i]).avgExp)}},
+    {l:'מחזור זכאות',           f:function(i){return ilv(+clients[i].elig)}},
+    {sec:'חישוב'},
+    {l:'שיעור ירידה',           f:function(i){return '<span style="color:#1a6b37;font-weight:800">'+pct(calc(clients[i]).drop)+'</span>'}},
+    {l:'עובר סף?',              f:function(i){var r=calc(clients[i]); return r.passes?'✅ כן':(r.hasData?'❌ לא':'—')}},
+    {l:'מקדם פיצוי',            f:function(i){return pct(calc(clients[i]).f)}},
+    {l:'מענק הוצאות קבועות',   f:function(i){return ilv(calc(clients[i]).fixedGrant)}},
+    {l:'מענק שכר',              f:function(i){return ilv(calc(clients[i]).salGrant)}},
+    {sec:'סיכום'},
+    {l:'סה"כ לפני תקרה',       f:function(i){return ilv(calc(clients[i]).total)}},
+    {l:'תקרה כללית',            f:function(i){return ilv(calc(clients[i]).cap)}},
+    {l:'הפסד בתקרה',            f:function(i){var r=calc(clients[i]); return r.total>r.cap&&r.hasData?'<span style="color:#b91c1c">'+ilv(r.total-r.cap)+'</span>':'—'}},
+    {final:true, l:'🏆 מענק סופי', f:function(i){return ilv(calc(clients[i]).finalGrant)}},
+  ];
+  var h = '<table class="cmp-tbl"><thead><tr><th class="lc">פרמטר</th>';
+  clients.forEach(function(c,i){ h+='<th>'+(c.name||'לקוח '+(i+1))+'</th>'; });
+  h += '</tr></thead><tbody>';
+  rows.forEach(function(row){
+    if (row.sec) { h+='<tr class="sc"><td colspan="'+(clients.length+1)+'">'+row.sec+'</td></tr>'; return; }
+    var st = row.final ? 'background:#fef8ec' : '';
+    var lst = row.final ? 'font-size:14px;font-weight:900' : '';
+    h += '<tr style="'+st+'"><td class="lc" style="'+lst+'">'+row.l+'</td>';
+    clients.forEach(function(_,i){ h+='<td style="'+(row.final?'font-size:15px;font-weight:900':'')+'">'+row.f(i)+'</td>'; });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('cmp-wrap').innerHTML = h;
+}
+
+// ── Print ──────────────────────────────────────────────────────
+function doPrint() {
+  var c = clients[activeIdx], r = calc(c);
+  var d = new Date().toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var rows = [
+    ['S','א. נתוני קלט'],
+    ['מחזור שנתי 2025',    ilv(+c.annual),      'עמוד 2'],
+    ['הוצאות שנתי 2025',   ilv(+c.annualExp),   'עמוד 6'],
+    ['מחזור זכאות',        ilv(+c.elig),         'עמוד 10'],
+    ['שכר טופס 102',       ilv(+c.sal102),       'עמוד 5'],
+    ['מספר עובדים',        c.numEmp||'—',        ''],
+    ['S','ב. חישוב'],
+    ['ממוצע חודשי 2025',   ilv(r.avg2025),       'מחזור ÷ 12'],
+    
+    ['שיעור ירידה',        pct(r.drop),          '(בסיס−זכאות)÷בסיס'],
+    ['עובר סף?',           r.passes?'✅ כן':'❌ לא', 'סף: '+pct(r.minDrop)],
+    ['מקדם פיצוי',         pct(r.f),             'עמוד 4'],
+    ['מענק הוצאות קבועות', ilv(r.fixedGrant),    ilv(r.avgExp)+' × '+pct(r.f)],
+    ['שכר נטו',            ilv(r.netSal),        '102 − מילואים − חל"ת'],
+    ['מענק שכר',           ilv(r.salGrant),      'עמוד 5'],
+    ['S','ג. סיכום'],
+    ['סה"כ לפני תקרה',    ilv(r.total),         ''],
+    ['תקרה כללית',         ilv(r.cap),           'עמוד 7'],
+    ['F','🏆 מענק סופי: '+ilv(r.finalGrant), r.total>r.cap?'⚠️ הפסד: '+ilv(r.total-r.cap):''],
+  ];
+  var tbl = rows.map(function(row){
+    if (row[0]==='S') return '<tr class="ps-sec"><td colspan="3">'+row[1]+'</td></tr>';
+    if (row[0]==='F') return '<tr class="ps-fin"><td colspan="2">'+row[1]+'</td><td style="color:#b91c1c;font-size:11px">'+row[2]+'</td></tr>';
+    return '<tr><td style="font-weight:600">'+row[0]+'</td><td>'+row[1]+'</td><td style="color:#94a3b8;font-size:11px">'+row[2]+'</td></tr>';
+  }).join('');
+  document.getElementById('print-area').innerHTML =
+    '<div class="ps-head"><div><div style="font-size:20px;font-weight:900;color:#0f2744">🦁 סימולטור שאגת הארי</div><div style="font-size:11px;color:#94a3b8">מבוסס על טיוטת מסמך לשכת יועצי המס בלבד</div></div><div style="text-align:left"><div style="font-size:14px;font-weight:800;color:#0f2744">'+(c.name||'ללא שם')+'</div><div style="font-size:11px;color:#94a3b8">הופק: '+d+'</div></div></div>'+
+    '<div class="ps-disc"><strong>⚠️ דיסקליימר חשוב:</strong> מסמך זה הינו <strong>סימולציה בלבד</strong> המבוססת על טיוטת מתווה "שאגת הארי". המתווה <strong>טרם אושר ונחקק</strong>. אין ייעוץ מקצועי. יש לאמת עם יועץ מס מוסמך.</div>'+
+    '<table class="ps-tbl"><thead><tr><th>פרמטר</th><th>ערך</th><th>הערה</th></tr></thead><tbody>'+tbl+'</tbody></table>'+
+    '<div class="ps-foot">סימולטור שאגת הארי | טיוטת מסמך לשכת יועצי המס בלבד | '+d+'</div>';
+  window.print();
+}
+
+// ── Init ───────────────────────────────────────────────────────
+loadData();
+renderAll();
+bindFields();
+</script>
+</body>
+</html>
